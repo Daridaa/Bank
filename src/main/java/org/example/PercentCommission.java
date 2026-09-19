@@ -1,3 +1,5 @@
+package org.example;
+
 public class PercentCommission implements CommissionPolicy {
 
     private final double percent; // процент комиссии, например 1.0 для 1%

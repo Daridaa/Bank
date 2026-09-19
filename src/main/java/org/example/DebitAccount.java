@@ -1,3 +1,5 @@
+package org.example;
+
 public class DebitAccount extends BankAccount{
     public DebitAccount(String number, String owner, double initialBalance) {
         super(number, owner, initialBalance);
