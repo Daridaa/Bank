@@ -1,4 +1,5 @@
 import org.example.*;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -8,10 +9,21 @@ class TransferServiceTest {
     private TransferService transferService;
     private static final double COMMISSION_PERCENT = 1.0; // 1%
 
+    private FakeNotificationService fakeNotificationService;
+
+
     @BeforeEach
     void setUp() {
+        fakeNotificationService = new FakeNotificationService();
+        transferService = new TransferService(
+                new PercentCommission(COMMISSION_PERCENT),
+                fakeNotificationService);
 
         transferService = new TransferService(new PercentCommission(COMMISSION_PERCENT), new ConsoleNotificationService());
+    }
+    @AfterEach
+    void tearDown() {
+        fakeNotificationService.reset();
     }
 
 
@@ -48,6 +60,57 @@ class TransferServiceTest {
         assertFalse(result, "Перевод должен быть отклонён из-за нехватки средств");
         assertEquals(initialSenderBalance, sender.getBalance(), 0.001, "Баланс отправителя не должен измениться");
         assertEquals(initialReceiverBalance, receiver.getBalance(), 0.001, "Баланс получателя не должен измениться");
+    }
+    @Test
+    void notificationSentOnSuccessfulTransfer() {
+        // Arrange
+        DebitAccount sender = new DebitAccount("D-500", "Eve", 10000.0);
+        DebitAccount receiver = new DebitAccount("D-600", "Frank", 5000.0);
+        double amount = 1000.0;
+
+        // Act
+        boolean result = transferService.transfer(sender, receiver, amount);
+
+        // Assert
+        assertTrue(result, "Перевод должен быть успешным");
+        assertEquals(1, fakeNotificationService.getNotificationCount(),
+                "Должно быть отправлено ровно одно уведомление при успехе");
+        assertNotNull(fakeNotificationService.getLastMessage(),
+                "Сообщение уведомления не должно быть null");
+    }
+
+    @Test
+    void noNotificationOnFailedTransfer() {
+        // Arrange
+        DebitAccount sender = new DebitAccount("D-700", "Grace", 100.0);
+        DebitAccount receiver = new DebitAccount("D-800", "Heidi", 0.0);
+        double amount = 200.0; // Недостаточно средств
+
+        // Act
+        boolean result = transferService.transfer(sender, receiver, amount);
+
+        // Assert
+        assertFalse(result, "Перевод должен быть неуспешным");
+        assertEquals(0, fakeNotificationService.getNotificationCount(),
+                "Уведомление не должно быть отправлено при неудаче");
+        assertNull(fakeNotificationService.getLastMessage(),
+                "Последнее сообщение должно быть null, так как уведомлений не было");
+    }
+
+    @Test
+    void notificationMessageTextIsCorrect() {
+        // Arrange
+        DebitAccount sender = new DebitAccount("D-900", "Ivan", 10000.0);
+        DebitAccount receiver = new DebitAccount("D-910", "Judy", 5000.0);
+        double amount = 500.0;
+
+        // Act
+        transferService.transfer(sender, receiver, amount);
+
+        // Assert
+        String expectedMessage = "Transfer of " + amount + " completed";
+        assertEquals(expectedMessage, fakeNotificationService.getLastMessage(),
+                "Текст уведомления должен точно соответствовать ожидаемому");
     }
 
     @Test
