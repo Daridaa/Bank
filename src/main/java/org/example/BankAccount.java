@@ -39,5 +39,13 @@ public abstract  class BankAccount {
     protected double calculateBalanceAfterWithdrawal(double amount) {
         return this.balance - amount;
     }
-
+    @Override
+    public String toString() {
+        // getClass().getSimpleName() вернёт "DebitAccount", "SavingsAccount" и т.д.
+        return getClass().getSimpleName() + "{" +
+                "number='" + number + '\'' +
+                ", owner='" + owner + '\'' +
+                ", balance=" + balance +
+                '}';
+    }
 }

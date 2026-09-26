@@ -50,8 +50,17 @@ public class Main {
         boolean successZero = transferService.transfer(sender, receiver, 0.0);
         System.out.println("Перевод успешен: " + successZero);
 
+        BankAccount account = new DebitAccount("001", "Ivan", 10000.0);
+        System.out.println(account);
+        // Вывод: DebitAccount{number='001', owner='Ivan', balance=10000.0}
 
 
+        System.out.println(new SavingsAccount("002", "Maria", 5000.0, 1000.0));
+        // Вывод: SavingsAccount{number='002', owner='Maria', balance=5000.0}
+
+        // Ещё один пример (для CreditAccount, если он есть)
+        System.out.println(new CreditAccount("003", "John", 2000.0, 5000.0));
+        // Вывод: CreditAccount{number='003', owner='John', balance=2000.0}
 
 
     }
