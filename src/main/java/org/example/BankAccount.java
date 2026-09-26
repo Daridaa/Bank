@@ -13,6 +13,13 @@ public abstract  class BankAccount {
             throw new IllegalArgumentException("Баланс не может быть отрицательным");
         }
     }
+    public String getNumber() {
+        return number;
+    }
+
+    public String getOwner() {
+        return owner;
+    }
     public void deposit(double amount){
         if (amount <= 0) {
             return;
